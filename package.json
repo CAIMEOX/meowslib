@@ -1,0 +1,28 @@
+{
+  "name": "fastbuilder",
+  "version": "1.0.0",
+  "description": "An online tool that helps minecraft building faster and easier",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XeroAlpha/FastBuilder.git"
+  },
+  "keywords": [
+    "minecraft",
+    "fastbuild",
+    "mcpews"
+  ],
+  "author": "ProjectXero",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/XeroAlpha/FastBuilder/issues"
+  },
+  "homepage": "https://github.com/XeroAlpha/FastBuilder#readme",
+  "dependencies": {
+    "uuid": "^3.3.2",
+    "ws": "^6.0.0"
+  }
+}
