@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/XeroAlpha/FastBuilder.git"
+    "url": "git+"
   },
   "keywords": [
     "minecraft",
@@ -18,9 +18,9 @@
   "author": "ProjectXero",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/XeroAlpha/FastBuilder/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/XeroAlpha/FastBuilder#readme",
+  "homepage": "",
   "dependencies": {
     "uuid": "^3.3.2",
     "ws": "^6.0.0"
