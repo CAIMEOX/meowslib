@@ -3,6 +3,9 @@
 ## 简介
 MWL是一个易于使用的Minecraft Websocket开发库
 
+## 安装
+`npm install meowslib`
+
 ## 代码实例
 输出玩家聊天信息:
 ```js
@@ -13,7 +16,7 @@ let wss = new WSServer(23333);
 
 wss.on('client', (session, request) => {
 	console.log(request.connection.remoteAddress + ' connected!');
-	session.tellraw('MeoWebsocket library v2.0.0 by CAIMEO.');
+	session.tellra代码w('MeoWebsocket library v2.0.0 by CAIMEO.');
 	BuildSession.createAndBind(session);
 	session.on('onMessage',(msg, player)=>{
 		console.log(`[${player}]Message: `, msg);
@@ -80,7 +83,7 @@ wss.on('client', (session, request) => {
 - text {String} 要发送的消息
 
 #### tellraw(text, color)
-tellraw
+tellraw代码
 - text {String} 要发送的消息
 - color {String} 颜色代码
 
