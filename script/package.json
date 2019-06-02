@@ -1,0 +1,7 @@
+{
+  "script":{
+    "paint":"./paint/paint.js",
+    "schematic":"./builder/schematic.js",
+    "nbt":"./builder/nbt.js"
+  }
+}

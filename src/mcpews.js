@@ -90,6 +90,16 @@ class Session extends EventEmitter {
 		this.sendCommand('say ' + text);
 	}
 
+	tellraw(text, color) {
+		this.sendCommand('tellraw @s ' + JSON.stringify({
+			rawtext:[
+				{
+					text:color || "§e" + text
+				}
+			]
+		}));
+	}
+
 	setBlock(x, y, z, blockId, blockData) {
 		blockData = blockData || 0;
 		this.sendCommand(['setblock', x, y, z, blockId, blockData].join(' '));
