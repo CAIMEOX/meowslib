@@ -30,7 +30,7 @@ wss.on('client', (session, request) => {
 	console.log(request.connection.remoteAddress + ' connected!');
 	session.tellraw('MeoWebsocket library v2.0.0 by CAIMEO.');
 	BuildSession.createAndBind(session);
-  session.subscribe("BlockPlaced", (json) => {
+  	session.subscribe("BlockPlaced", (json) => {
     console.log("BlockPlaced:", json);
   })
 });
@@ -51,11 +51,11 @@ wss.on('client', (session, request) => {
 
 ### Events
 #### onMessage
-当玩家发送消息时触发，传入信息内容和发送者
+当玩家发送消息时触发，传入信息内容(message)和发送者(Sender)
 #### onJSON
 当玩家发送消息时触发，不同的是，它将传回json
 #### onError
-发生错误时触发,传回i错误信息
+发生错误时触发,传回错误信息
 #### onCommand
 党玩家发送消息并被Parser解析完成时触发，传回object
 
