@@ -16,7 +16,7 @@ let wss = new WSServer(23333);
 
 wss.on('client', (session, request) => {
 	console.log(request.connection.remoteAddress + ' connected!');
-	session.tellra代码w('MeoWebsocket library v2.0.0 by CAIMEO.');
+	session.tellraw('MeoWebsocket library v2.0.0 by CAIMEO.');
 	BuildSession.createAndBind(session);
 	session.on('onMessage',(msg, player)=>{
 		console.log(`[${player}]Message: `, msg);
