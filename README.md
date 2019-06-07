@@ -57,7 +57,7 @@ wss.on('client', (session, request) => {
 #### onError
 发生错误时触发,传回错误信息
 #### onCommand
-党玩家发送消息并被Parser解析完成时触发，传回object
+当玩家发送消息并被Parser解析完成时触发，传回object
 
 ### Session
 #### sendCommand(command, callback)
