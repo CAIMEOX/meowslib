@@ -2,7 +2,10 @@ const EventEmitter = require('events');
 const WebSocket = require('ws');
 const os = require('os');
 const randomUUID = require('uuid/v4');
+const ProgressBar = require('./progressbar');
 const Formation = new Map();
+const Child_process = require('child_process');
+
 class WSServer extends WebSocket.Server {
 	constructor(port, processor) {
     console.log(`Server was running at ${getHost()}:${port}`);
@@ -22,6 +25,7 @@ class Session extends EventEmitter {
 		this.socket = socket;
 		this.eventListeners = new Map();
 		this.responsers = new Map();
+		this.stop = true;
 		socket.on('message', onMessage.bind(this));
     socket.on('close', onClose.bind(this));
 	}
@@ -105,6 +109,69 @@ class Session extends EventEmitter {
 		this.sendCommand(['setblock', x, y, z, blockId, blockData].join(' '));
 	}
 
+	shell(command, args, options){
+		let $command = Child_process.spawn(command, args, options);
+		$command.stdout.on('data',(data) => {
+			this.tellraw('Terminal: ' + data);
+		});
+	}
+
+	tryEval(code) {
+		let result;
+		try{
+			result = eval(code);
+		}catch(e){
+			result = e;
+		}
+		return result;
+	}
+
+	write(str){
+		this.sendCommand('title @s actionbar ' + str);
+	}
+
+	now(){
+		let date = new Date();
+    return ['[',date.toTimeString().slice(0, 8),']'].join('');
+	}
+
+	sendCommandQueue(queue, time, bar){
+		let t = 0;
+		this.stop = false
+		if(bar){
+			let $bar = new ProgressBar('§bProgressBar: §e[:bar] §e:percent §b:etas §b:rate block/s', {
+				stream:this,
+				total:queue.length,
+				width:30,
+				complete:'+',
+				incomplete:'=',
+				clear:true,
+				callback:()=>{
+					this.write('§bEverything is done!');
+				}
+			});
+			let Sender = setInterval(() => {
+				this.sendCommand(queue[t],() => {
+					$bar.tick();
+				});
+				t++;
+				if(t == queue.length || this.stop){
+					if(this.stop)this.write('§eAnd nothing is allright!');
+					clearInterval(Sender);
+					this.stop = true;
+				}
+			},time);
+		}else{
+			let Sender = setInterval(() => {
+				this.sendCommand(queue[t]);
+				t++;
+				if(t == queue.length || this.stop){
+					clearInterval(Sender);
+					this.stop = true;
+				}
+			},time);
+		}
+	}
 
 }
 

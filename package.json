@@ -1,0 +1,56 @@
+{
+  "_from": "meowslib",
+  "_id": "meowslib@2.0.0",
+  "_inBundle": false,
+  "_integrity": "sha512-x/81fjIv4RaICD5JodUgdwEH6C35eogW4z6EvE/u2gix4spZpvrBLMfKbqnv2IJoNWGZVSTfBhz3qrirLHkXsA==",
+  "_location": "/meowslib",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "meowslib",
+    "name": "meowslib",
+    "escapedName": "meowslib",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/meowslib/-/meowslib-2.0.0.tgz",
+  "_shasum": "7260f2ea5e32f7f71e3abb0fb4ea95deee307200",
+  "_spec": "meowslib",
+  "_where": "/home/caimeo/LibMCWS",
+  "author": {
+    "name": "CAIMEO"
+  },
+  "bugs": {
+    "url": "https://github.com/CAIMEOX/libwebsocket/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "uuid": "^3.3.2",
+    "ws": "6.0.0"
+  },
+  "deprecated": false,
+  "description": "A simple Minecraft websocket library.",
+  "devDependencies": {},
+  "homepage": "https://github.com/CAIMEOX/libwebsocket#readme",
+  "keywords": [
+    "mcpe",
+    "websocket"
+  ],
+  "license": "GPL-3.0-or-later",
+  "main": "index.js",
+  "name": "meowslib",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CAIMEOX/libwebsocket.git"
+  },
+  "scripts": {
+    "test": "node test"
+  },
+  "version": "5.0.0"
+}
