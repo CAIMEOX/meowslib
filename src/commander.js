@@ -10,6 +10,7 @@ class Commander {
     let Pipe = [Object.assign(options,config[0]).position];
     let List = [];
     for(let c of config){
+      if(!c.exec)continue;
       Object.assign(options, c);
       Pipe = Pipe.length === 0 ? [options.position] : Pipe;
       //console.log("Options: ", options, "\nconfig: ",c,"\nPipe:",Pipe,'\n======================');
@@ -21,7 +22,7 @@ class Commander {
       }
       Pipe = reduceDimension(List);
       List.length = 0;
-    }
+   }
     return this[generator](multiDimensionalUnique(Pipe),options);
   }
 
@@ -66,11 +67,11 @@ class Commander {
     let {method, method2} = config;
     if(method === 'filtered'){
       for(let i = 0 ; i < structure.length ; i++){
-        cmd_queue.push(`clone ${config.begin.join(' ')} ${config.end.join(' ')} ${config.position.join(' ')} filtered ${method2} ${config.block}`);
+        cmd_queue.push(`clone ${config.begin.join(' ')} ${config.end.join(' ')} ${structure[i].join(' ')} filtered ${method2} ${config.block}`);
       }
     }else{
       for(let i = 0 ; i < structure.length ; i++){
-        cmd_queue.push(`clone ${config.begin.join(' ')} ${config.end.join(' ')} ${config.position.join(' ')} ${method} ${method2}`);
+        cmd_queue.push(`clone ${config.begin.join(' ')} ${config.end.join(' ')} ${structure[i].join(' ')} ${method} ${method2}`);
       }
     }
     return cmd_queue;

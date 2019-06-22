@@ -204,8 +204,8 @@ class Builder {
 				return session;
 			},
 			get:(options) =>{
-				collector.getPosition().then((v) => {
-					session.tellraw(session.now() + v.join())
+				collector.getPosition(options.target || 'pos').then((v) => {
+					session.tellraw(session.now() + 'Got: ' + v.join())
 				});
 			},
 			history:(options) =>{

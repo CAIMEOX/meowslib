@@ -1,36 +1,57 @@
 const MeoWS = require('meowslib');
+const crypto = require('crypto');
 const WSServer = MeoWS.WSServer;
 const BuildSession = MeoWS.BuildSession;
 const Collector = MeoWS.Collector;
 const Commander = MeoWS.Commander;
 const Builder = MeoWS.Builder;
 const Parser = MeoWS.Parser;
-let wss = new WSServer(23333);
+const fs = require('fs');
+let wss = new WSServer(16384);
 
 wss.on('client', (session, request) => {
-	this.co = new Collector(session);
-	this.r = new Builder(session, this.co);
+//init
+	this.C = new Collector(session);
+	this.B = new Builder(session, this.C);
+	let js = fs.readFileSync('./nbt.js');
+	this.B.loadScript('nbt',js.toString());
 	console.log(request.connection.remoteAddress + ' connected!');
-	session.tellraw('MeoWebsocket library v0.0.1 by CAIMEO.');
+	session.tellraw(session.now() + 'FastBuilder connected!');
 	BuildSession.createAndBind(session);
-	this.co.getPosition('@s').then((v)=>{
+	this.C.getPosition().then((v)=>{
 		session.tellraw(session.now() + 'Position get: ' + v.join(' '));
 	});
+	session.sendCommandSync('testfor @s').then((v) => {
+		session.tellraw(session.now() + v.victim + '. Welcome to FastBuilder! Enjoy it:D');
+		session.write('§ePowered by CAIMEO.');
+	});
+
+
 	session.on('onMessage',(msg, player)=>{
-		let build_config = new Parser(msg,{},Object.keys(this.r.methods));
-		build_config.forEach((config) => {
+		let result = Commander.ParseConfig(new Parser(msg,{},Object.keys(this.B.methods)),this.B,this.C.config);
+		//console.log(result)
+		if(!result){
+			return;
+		}
+		session.sendCommandQueue(result);
+		/*build_config.forEach((config) => {
 			if(!config.exec)return;
-			let blocks = this.r.methods[config.exec](config);
+			//console.log("config:",Object.assign(config, this.C.config))
+			let blocks = this.B.methods[config.exec](Object.assign(config, this.C.config));
 			if(!blocks)return;
-			session.sendCommandQueue(Commander.setTile(blocks,{
-				position:this.co.last.position,
-				block:'stained_glass'
-			}),0,true);
-		})
-		//console.log(`[${player}]Message: `, msg);
+			if(config.probability){
+				session.sendCommandQueue(Commander.ProbabilityBuilder(blocks,{
+					position:this.C.config.position,
+					probability:config.probability
+				}),0,true);
+			}else{
+				session.sendCommandQueue(Commander.setTile(blocks,{
+					block:'stained_glass'
+				}),0,true);
+			}
+		});
+		*/
 	});
-	session.on('onError',(e)=>{
-		//发生错误时
-		//console.log('onError: ', e);
-	});
+
+
 });

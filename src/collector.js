@@ -15,11 +15,14 @@ class Collector {
     }
   }
 
-  async getPosition(){
+  async getPosition(target){
+    target = target === 'begin' ? 'begin' : target === 'end' ? 'end' : 'position';
+    console.log('target',target)
     let position = await this.session.sendCommandSync(`testforblock ~ ~ ~ air`);
     this.history.position.push(Object.values(position.position));
-    this.config.position = Object.values(position.position);
-    return this.history.position[this.history.position.length - 1];
+    this.config[target] = Object.values(position.position);
+    console.log(this.config)
+    return Object.values(position.position);
   }
 
   async getPlayer(){
