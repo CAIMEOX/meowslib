@@ -1,9 +1,13 @@
+const Lang = require('../res/lang');
 class Builder {
 	constructor(session, collector) {
 		this.methods = {
+			message: (options) => {
+				session[options.mtd](options.msg);
+			},
 			stop: () => {
 				session.stop = true;
-				session.tellraw(session.now() + 'Stopped!');
+				session.tellraw('Stopped!');
 			},
 			round: (options) =>{
 				let {
@@ -203,42 +207,79 @@ class Builder {
 				}
 				return session;
 			},
+			oblong: (options) => {
+				let {
+					begin,
+					end,
+					position
+				} = options;
+				let session = [];
+				let [sx, sy, sz] = begin;
+				let [ex, ey, ez] = end;
+				let [x, y, z] = position;
+				let minX = Math.min(sx, ex);
+				let maxX = Math.max(sx, ex);
+				let minY = Math.min(sy, ey);
+				let maxY = Math.max(sy, ey);
+				let minZ = Math.min(sz, ez);
+				let maxZ = Math.max(sz, ez);
+				for(let px = minX ; px < maxX; px++){
+					for(let py = minY ; py < maxY ; py++){
+						for(let pz = minZ ; pz < maxZ ; pz++){
+							session.push([px, py, pz]);
+						}
+					}
+				}
+				return session;
+			},
 			get:(options) =>{
 				collector.getPosition(options.target || 'pos').then((v) => {
-					session.tellraw(session.now() + 'Got: ' + v.join())
+					session.tellraw('Got: ' + v.join())
 				});
 			},
 			history:(options) =>{
 				if(!collector.history[options.value] || !options.value)return;
-				session.tellraw(session.now() + 'History: \n' + collector.history[options.value].join(';\n'));
+				session.tellraw('History: \n' + collector.history[options.value].join(';\n'));
 			},
 			set:(options) =>{
 				Object.assign(collector.config, options);
-				session.tellraw(session.now() + 'Data wrote: ' + JSON.stringify(options));
+				session.tellraw('Data wrote: ' + JSON.stringify(options));
 			},
 			place:(options) => {
 
 			},
-			tree:(options) => {}
+			tree:(options) => {},
+			palette:(options) => {
+				let {
+					position
+				} = options;
+				let [x, y, z] = position;
+				let session = [];
+				let vX = 0, vZ = 0;
+				let Palette = require('./palette');
+				for(let p of Palette){
+					session.push([x + vX, y, z + vZ, p.name.replace('minecraft:',''), p.data]);
+					vX += 2;
+					if(vX === 128){
+						if(vZ % 2 === 0)vX = 1;
+						else{
+							vX = 0;
+						}
+						vZ += 2;
+					}
+				}
+
+				return session;
+			}
 		}
 	}
-
-	addScript(name, path) {
-		console.log('Adding Script')
-		try {
-			this.methods[name] = require(path);
-		} catch(e) {
-			console.log(new Error(e));
-			return new Error(e);
-		}
-	}
-
+	
 	loadScript(name, code){
 		try {
 			this.methods[name] = eval(code);
+			return Lang.script.sload + name;
 		} catch(e){
-			console.log(new Error(e));
-			return new Error(e);
+			return 'Script ' + new Error(e);
 		}
 	}
 }

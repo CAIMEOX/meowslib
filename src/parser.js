@@ -1,70 +1,3 @@
-const __DefaultOptions = [
-  {
-    abbreviation:'p',
-    alias:'position',
-    len:3
-  },
-  {
-    abbreviation:'b',
-    alias:'block',
-    len:1
-  },
-  {
-    abbreviation:'s',
-    alias:'shape',
-    len:1
-  },
-  {
-    abbreviation:'j',
-    alias:'probability',
-    len:0
-  },
-  {
-    abbreviation:'s',
-    alias:'shape',
-    len:1
-  },
-  {
-    abbreviation:'l',
-    alias:'length',
-    len:1
-  },
-  {
-    abbreviation:'w',
-    alias:'width',
-    len:1
-  },
-  {
-    abbreviation:'h',
-    alias:'height',
-    len:1
-  },
-  {
-    abbreviation:'z',
-    alias:'path',
-    len:1
-  },
-  {
-    abbreviation:'d',
-    alias:'data',
-    len:1
-  },
-  {
-    abbreviation:'r',
-    alias:'radius',
-    len:1
-  },
-  {
-    abbreviation:'f',
-    alias:'direction',
-    len:1
-  },
-  {
-    abbreviation:'v',
-    alias:'value',
-    len:1
-  }
-];
 const DefaultOptions = {
   r:['radius',1,toInt.bind(this)],
   f:['direction',1,x = x => x],
@@ -91,21 +24,24 @@ class Parser {
   constructor(command, options, methods){
     let commands = command.split('|');
     let result = [];
-    this.generator = ['setblock','clone','summon'];
+    this.generator = ['setblock','clone','summon','dump','testforblock'];
     this.methods = methods;
     commands.forEach((cmd) => {
       result.push(this.parse(cmd, options));
     });
-    let builder = 'setblock';
+    let builder = 'setblock',
+        sync = false;
     this.generator.forEach((method) => {
       let i = command.split(' ');
+      if(i.includes('--sync'))sync = true;
       if(i.includes(method))builder = method;
     });
-	  console.log(result,builder);
+	  // console.log(result,builder);
 
     return {
       config:result,
-      generator:builder
+      generator:builder,
+      sync:sync
     }
   }
 

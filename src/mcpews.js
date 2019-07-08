@@ -3,12 +3,13 @@ const WebSocket = require('ws');
 const os = require('os');
 const randomUUID = require('uuid/v4');
 const ProgressBar = require('./progressbar');
+const log = require('./logger')
 const Formation = new Map();
 const Child_process = require('child_process');
-
+const palette = require('./palette');
 class WSServer extends WebSocket.Server {
 	constructor(port, processor) {
-    console.log(`Server was running at ${getHost()}:${port}`);
+    log(`Server was running at ${getHost()}:${port}`);
 		super({
 			port: port
 		});
@@ -40,7 +41,7 @@ class Session extends EventEmitter {
 				body: {
 					eventName: String(event)
 				}
-			}));
+			}),(e)=>{return});
 		}
 		listeners.add(callback);
 	}
@@ -58,7 +59,7 @@ class Session extends EventEmitter {
 				body: {
 					eventName: String(event)
 				}
-			}));
+			}),(e)=>{return});
 		}
 	}
 
@@ -71,7 +72,7 @@ class Session extends EventEmitter {
 			}
 		};
 		this.responsers.set(json.header.requestId, callback);
-		this.socket.send(JSON.stringify(json));
+		this.socket.send(JSON.stringify(json),(e)=>{return});
 		Formation.set(json.header.requestId, command);
 		return json.header.requestId;
 	}
@@ -86,7 +87,7 @@ class Session extends EventEmitter {
 				}
 			};
 			this.responsers.set(json.header.requestId, done);
-			this.socket.send(JSON.stringify(json));
+			this.socket.send(JSON.stringify(json),(e)=>{return});
 		});
 	}
 
@@ -98,7 +99,7 @@ class Session extends EventEmitter {
 		this.sendCommand('tellraw @s ' + JSON.stringify({
 			rawtext:[
 				{
-					text:color || "§e" + text
+					text:color || "§e" + this.now() + text
 				}
 			]
 		}));
@@ -173,6 +174,18 @@ class Session extends EventEmitter {
 		}
 	}
 
+	sendCommandQueueSync(queue){
+		let t = 0;
+		let that = this;
+		function next(t){
+			that.sendCommandSync(queue[t]).then((body) => {
+				if(t === queue.length)return;
+				t++;
+				next(t);
+			});
+		}
+		next(t);
+	}
 }
 
 module.exports = WSServer;

@@ -17,11 +17,9 @@ class Collector {
 
   async getPosition(target){
     target = target === 'begin' ? 'begin' : target === 'end' ? 'end' : 'position';
-    console.log('target',target)
     let position = await this.session.sendCommandSync(`testforblock ~ ~ ~ air`);
     this.history.position.push(Object.values(position.position));
     this.config[target] = Object.values(position.position);
-    console.log(this.config)
     return Object.values(position.position);
   }
 

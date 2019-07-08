@@ -1,32 +1,40 @@
 const MeoWS = require('meowslib');
 
 class Commander {
-  static ParseConfig(json, builder, options){
+  constructor(session){
+    this.session = session;
+  }
+  ParseConfig(json, builder, options){
     let {
-      config, generator
-    } = json
+      config, generator, sync
+    } = json;
     //@Config 现有参数
     //@Options 原参数
-    let Pipe = [Object.assign(options,config[0]).position];
+    this.opt = Object.assign({}, options);
+    let Pipe = [Object.assign(this.opt,config[0]).position];
     let List = [];
     for(let c of config){
-      if(!c.exec)continue;
-      Object.assign(options, c);
-      Pipe = Pipe.length === 0 ? [options.position] : Pipe;
-      //console.log("Options: ", options, "\nconfig: ",c,"\nPipe:",Pipe,'\n======================');
+      if(!c.exec){
+        continue;
+      }
+      Object.assign(this.opt, c);
+      Pipe = Pipe.length === 0 ? [this.opt.position] : Pipe;
       for(let p of Pipe){
-        Object.assign(options,{
-          position:p
-        });
-          List.push(builder.methods[c.exec](Object.assign(options,c)));
+        this.opt.position = p;
+        List.push(builder.methods[c.exec](Object.assign(this.opt,c)));
       }
       Pipe = reduceDimension(List);
       List.length = 0;
    }
-    return this[generator](multiDimensionalUnique(Pipe),options);
-  }
 
-  static MakeChunks(position, list){
+   let queue = this[generator](multiDimensionalUnique(Pipe),this.opt);
+    return {
+      queue:queue,
+      sync:sync
+  }
+}
+
+  MakeChunks(position, list){
     let [x, y, z] = position;
     let chunks = new Map();
     list.forEach((value) => {
@@ -39,7 +47,25 @@ class Commander {
     return chunks;
   }
 
-  static setblock(structure, config){
+  dump(structure, config){
+    if(!structure[0])return;
+    let cmd_queue = [];
+    for(let i = 0 ; i < structure.length ; i++){
+      cmd_queue.push(`gettopsolidblock ${structure[i][0]} ${structure[i][1]} ${structure[i][2]}`);
+    }
+    return cmd_queue;
+  }
+
+  testforblock(structure, config){
+    if(!structure[0])return;
+    let cmd_queue = [];
+    for(let i = 0 ; i < structure.length ; i++){
+      cmd_queue.push(`testforblock ${structure[i][0]} ${structure[i][1]} ${structure[i][2]} ${config.block}`);
+    }
+    return cmd_queue;
+  }
+
+  setblock(structure, config){
     if(!structure[0])return;
     let cmd_queue = [];
     for(let i = 0 ; i < structure.length ; i++){
@@ -48,7 +74,7 @@ class Commander {
     return cmd_queue;
   }
 
-  static summon(structure, config){
+  summon(structure, config){
     let cmd_queue = [];
     for(let i = 0 ; i < structure.length ; i++){
       cmd_queue.push(`summon ${config.entity} ${structure[i].join(' ')}`);
@@ -56,13 +82,13 @@ class Commander {
     return cmd_queue;
   }
 
-  static PipeBuilder(config){
+  PipeBuilder(config){
     for(let i in config){
       config[i].exec
     }
   }
 
-  static clone(structure, config){
+  clone(structure, config){
     let cmd_queue = [];
     let {method, method2} = config;
     if(method === 'filtered'){
@@ -77,7 +103,7 @@ class Commander {
     return cmd_queue;
   }
 
-  static fillTile(structure, config){
+  fillTile(structure, config){
     let [x, y, z] = config.position;
     let cmd_queue = [];
     structure.forEach((coordinates, index) => {
@@ -91,7 +117,7 @@ class Commander {
     });
   }
 
-  static ProbabilityBuilder(structure, config){
+  ProbabilityBuilder(structure, config){
     let cmd_queue = [], len = structure.length;
 		let {
 			table, sum
