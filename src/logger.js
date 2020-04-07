@@ -1,4 +1,5 @@
 const colorize = (...args) => ({
+  nop: `${args.join(' ')}`,
   black: `\x1b[30m${args.join(' ')}`,
   red: `\x1b[31m${args.join(' ')}`,
   green: `\x1b[32m${args.join(' ')}`,
@@ -18,7 +19,7 @@ const colorize = (...args) => ({
 });
 
 function log(text, color){
-  console.log(colorize(now() + text)[color || 'yellow'])
+  console.log(colorize(now() + text)[color || 'nop'])
 }
 
 function now(){

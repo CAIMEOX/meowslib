@@ -4,7 +4,7 @@ class Commander{
     }
 
     parseConfigs(configs, generator){
-        let pos = Object.assign({},this.options,configs[0].data).position
+        let pos = Object.assign({},this.options,configs[0].data).position;
         let vec = [pos];
         let cache = [];
         let opt;
@@ -37,7 +37,7 @@ class Commander{
             let chunks = this.split(pos, vec);
             return this.setBlockSplit(chunks, opt);
         } else {
-            return this.setblock(vec)
+            return this.setblock(vec, opt)
         }
         
     }

@@ -8,10 +8,9 @@ const Formation = new Map();
 const Child_process = require('child_process');
 class WSServer extends WebSocket.Server {
 	constructor(port, processor) {
-    log(`Server was running at ${getHost()}:${port}`);
-		super({
-			port: port
-		});
+		log(`Server is running at ${getHost()}:${port}`);
+		let options=(typeof(port)=="object")?port:{port};
+		super(options);
 		this.sessions = new Set();
 		this.on('connection', onConn);
 		
@@ -82,6 +81,7 @@ class Session extends EventEmitter {
 		this.responsers = new Map();
 		this.stop = true;
 		this.answered = true;
+		this.globalOutput=false;
 		socket.on('message', onMessage.bind(this));
 		socket.on('close', onClose.bind(this));
 		
@@ -163,10 +163,11 @@ class Session extends EventEmitter {
 	}
 
 	tellraw(text, color) {
-		this.sendCommand('tellraw @s ' + JSON.stringify({
+		if(color===true)color="§4";
+		this.sendCommand('tellraw '+(this.globalOutput?'@a':'@s')+' ' + JSON.stringify({
 			rawtext:[
 				{
-					text:color || "§e" + this.now() + text
+					text:(color || "§e") + this.now() + text
 				}
 			]
 		}));
@@ -279,9 +280,9 @@ function onMessage(message) {
 	let json;
 	try {
 		json = JSON.parse(message);
-		//this.emit('onJSON', message);
+		this.emit('onJSON', message);
 	}catch(e){
-		//this.emit('onParseError', e);
+		this.emit('onParseError', e);
 		return;
 	}
 	var header = json.header;
