@@ -144,6 +144,19 @@ class Session extends EventEmitter {
 		return json.header.requestId;
 	}
 
+	repairCommand(command, requestId) {
+		let json = {
+			header: buildHeader('commandRequest'),
+			body: {
+				version: 1,
+				commandLine: command
+			}
+		};
+		json.header.requestId=requestId;
+		this.socket.send(JSON.stringify(json),(e)=>{return});
+		return json.header.requestId;
+	}
+
 	sendCommandSync(command) {
 		return new Promise((done) => {
 			let json = {
@@ -153,6 +166,7 @@ class Session extends EventEmitter {
 					commandLine: command
 				}
 			};
+			Formation.set(json.header.requestId, command);
 			this.responsers.set(json.header.requestId, done);
 			this.socket.send(JSON.stringify(json),(e)=>{return});
 		});
@@ -315,7 +329,7 @@ function onMessage(message) {
 		break;
 	case 'error':
 		if (Formation.has(header.requestId)) {
-			this.sendCommand(Formation.get(header.requestId));
+			this.repairCommand(Formation.get(header.requestId),header.requestId);
 		};
 		this.emit('onError', new Error(json.body.statusMessage), json);
 		break;

@@ -1,13 +1,59 @@
 const fs = require('fs');
+const constants = require('./constants');
+const getUsage = require('command-line-usage');
 class Builder {
     constructor(session) {
+        this.args = {
+            radius: {
+                name: '{cyan radius}',
+                alias: '{cyan r}',
+                multiple: true,
+                type: Number,
+                description: 'The radius of the structure.'
+            },
+            height: {
+                name: '{cyan height}',
+                alias: '{cyan h}',
+                type: Number,
+                description: 'The height of the structure.'
+            },
+            path: {
+                name:'{cyan path}',
+                alias:'{cyan p}',
+                type: String,
+                description: 'The input files to process.'
+            },
+            
+            mix: {
+                name:'{cyan mix}',
+                alias: '{cyan m}',
+                typeLabel: '{underline Block:Weight[]}',
+                description: 'Mixed random blocks generate.'
+            },
+            filter: {
+                name: '{cyan filter}',
+                typeLabel: '{underline Block[]}',
+                description: 'Filter out some blocks',
+            },
+            facing: {
+                name: '{cyan facing}',
+                alias: '{cyan f}',
+                description: 'The facing of the structure.Expected values: x, y or z.'
+            }
+        }
         this.session = session;
         this.methods = {
+            alias: (options) => {
+                let {command} = options;
+                // constants
+            },
             registerCommand: (name, opt) => {
                 session.parser.registerCommand(name, opt);
             },
-            export: (options) => {
-                let {path} = options;
+            helpme: (options) => {
+                let {list} = options;
+                session.tellraw(formatColor(getUsage(this.sections[list])));
+                return {err:'None'}
                 
             },
             help: (options) => {
@@ -113,7 +159,7 @@ class Builder {
             stop: () => {
                 session.stop = true;
                 session.tellraw('Stopped!');
-                return [];
+                return {err:'None'}
             },
             round: (options) => {
                 let {
@@ -351,21 +397,37 @@ class Builder {
                 return session;
             },
             get: (options) => {
-                session.clr.getPosition(options.target || 'pos').then((v) => {
-                    session.tellraw('Position Got: ' + v.join());
-                    session.cmd.updateOptions({
-                        position: v
-                    });
+                let {target} = options;
+                session.clr.getPosition().then((v) => {
+                    session.tellraw('Position Got<'+ (target || 'normal') +'>: ' + v.join());
+                    switch (target){
+                        case 'begin':
+                            session.cmd.updateOptions({
+                                begin: v
+                            });
+                        break;
+                        case 'end':
+                            session.cmd.updateOptions({
+                                end: v
+                            });
+                        break;
+                        default:
+                            session.cmd.updateOptions({
+                                position: v
+                            });
+                        break;
+                    }
                 });
-                return [];
+                return {err:'None'}
             },
             history: (options) => {
                 if (!session.clr.history[options.value] || !options.value) return;
                 session.tellraw('History: \n' + collector.history[options.value].join(';\n'));
             },
             set: (options) => {
-                Object.assign(session.clr.config, options);
-                session.tellraw('Data wrote: ' + JSON.stringify(options));
+                delete options.command;
+                session.cmd.updateOptions(options)
+                session.tellraw('Options updated: ' + JSON.stringify(options));
                 return [];
             },
             eval: (options) => {
@@ -459,6 +521,101 @@ class Builder {
                 return blocks;
             }
         }
+        this.sections = {
+            gen:[
+                {
+                    header: 'Command',
+                    content: [
+                        'Generate a regional shape of blocks based on given expression like geometrical values or mathematical equations.',
+                        'gen {bold --expression} {underline Expression} {}'
+                    ]
+                }
+            ],
+            round: [
+                {
+                    header: 'Command',
+                    content:[
+                        'Generates a round or cylinder',
+                        'round {bold -r} {underline Number} {bold -h} {underline Number} {bold -f} {underline String}'
+                    ]
+                },
+                {
+                    header:'Options',
+                    optionList:[
+                        this.args.radius, this.args.height, this.args.facing
+                    ]
+                },
+                {
+                    header:'Examples',
+                    content: [
+                        {
+                            desc: 'A concise example.',
+                            example: '{cyan round -r 5 0 -f y -h 1}'
+                        },
+                        {
+                            desc: 'A long example.',
+                            example: '{cyan round -r 5 4 -f y -h 10 -b tnt -d 0}'
+                        }
+                    ]
+                }
+            ],
+            generate: [
+                {
+                    header: 'Command',
+                    content: [
+                        'Loading a structure from stronge.',
+                        'schematic/nbt/acme {bold -p} {underline FilePath}'
+                    ]
+                },
+                {
+                    header: 'Options',
+                    optionList:[
+                        this.args.path
+                    ]
+                },
+                {
+                    header: 'Example',
+                    content: [
+                        {
+                            desc: 'Load a structure that saved as schematic.',
+                            example: '{cyan schematic -p /home/caimeo/structures/city.schematic}'
+                        },
+                        {
+                            desc: 'Load a structure that saved as nbt.',
+                            example: '{cyan schematic -p /sdcard/structures/my_house.nbt}'
+                        },
+                        {
+                            desc: 'Load a structure that saved as mcacblock.',
+                            example: '{cyan schematic -p /usr/caimeo/structures/ufo.mcacblock}'
+                        }
+                    ]
+                }
+            ],
+            paint: [
+                {
+                    header: 'Command',
+                    content: [
+                        'Draw a pixel painting.({red Only support PNG!!})',
+                        'paint {bold -p} {underline ImagePath}'
+                    ]
+                },
+                {
+                    header: 'Options',
+                    optionList:[
+                        this.args.path
+                    ]
+                },
+                {
+                    header:'Example',
+                    content: [
+                        {
+                            desc: 'Paint a picture.',
+                            example: '{cyan paint -p /home/caimeo/Pictures/my_nude_photos/05.png}'
+                        }
+                    ]
+                }
+            ]
+        }
     }
 
     loadScript(name, code) {
@@ -469,6 +626,97 @@ class Builder {
             return 'Script ' + new Error(e);
         }
     }
+}
+
+function formatColor(str){
+    let r = '§r';
+    for(let i = 0; i < str.length; i++){
+        if(str.charAt(i) === '\x1b' && str.charAt(i + 1) === '['){
+            let code = str.charAt(i + 2) + str.charAt(i + 3);
+            switch (code){
+                case '1m':
+                    i+=3;
+                    r+='§l'
+                    break;
+                case '3m':
+                    i+=3;
+                    r+='§o'
+                case '4m':
+                    i+=3
+                    r+='§n'
+                    break;
+                case '9m':
+                    i+=3;
+                    r+= '§m'
+                    break;
+                case '30':
+                    i+=4;
+                    r+='§0';
+                    break;
+                case '31':
+                    i+=4;
+                    r+='§4'
+                    break;
+                case '32':
+                    i+=4;
+                    r+='§2';
+                    break;
+                case '33':
+                    i+=4;
+                    r+='§e';
+                    break;
+                case '34':
+                    i+=4;
+                    r+='§1';
+                    break;
+                case '35':
+                    i+=4;
+                    r+='§d';
+                    break;
+                case '36':
+                    i+=4;
+                    r+='§b';
+                    break;
+                case '37':
+                    i+=4;
+                    r+='§f';
+                    break;
+                case '90':
+                    i+=4;
+                    r+='§7';
+                    break;
+                case '91':
+                    i+=4;
+                    r+='§c';
+                    break;
+                case '92':
+                    i+=4;
+                    r+='§a';
+                    break;
+                case '94':
+                    i+=4;
+                    r+='§9';
+                    break;
+                case '95':
+                    i+=4;
+                    r+='§5';
+                    break;
+
+                    case '22':
+                    case '24':
+                    case '39':
+                        i+=4;
+                        r+='§r';
+                        break;
+                    default:
+                        console.log(str.charAt(i + 2) + str.charAt(i + 3) + str.charAt(i + 4) + str.charAt(i + 5))
+                        i+=4;
+            }
+        }else {
+            r += str.charAt(i)
+        }
+    }
+    return r;
 }
 
 module.exports = Builder;

@@ -4,7 +4,7 @@ class Commander{
     }
 
     parseConfigs(configs, generator){
-        let pos = Object.assign({},this.options,configs[0].data).position;
+        let pos = Object.assign({},this.options,configs[0].data).position
         let vec = [pos];
         let cache = [];
         let opt;
@@ -20,6 +20,9 @@ class Commander{
                 if (structure === 0)return {
                     err: 'No BlockVec'
                 }
+                if (structure.err){
+                    return {err:structure.err}
+                }
                 cache.push(structure);
             }
             vec = reduceDimension(cache);
@@ -33,6 +36,7 @@ class Commander{
         if (vec.err){
             return vec;
         }
+        vec = multiDimensionalUnique(vec);
         if (opt.split){
             let chunks = this.split(pos, vec);
             return this.setBlockSplit(chunks, opt);
@@ -43,7 +47,8 @@ class Commander{
     }
 
     setblock(structure, config){
-        if(!structure[0])return;
+        // console.log(config)
+        if(!Array.isArray(structure[0]))return;
         let cmd_queue = [];
         for(let i = 0 ; i < structure.length ; i++){
           cmd_queue.push(`setblock ${structure[i].join(' ')} ` + (structure[i].length === 3 ? (config.block + ' ' + config.data) : ''));
@@ -76,14 +81,18 @@ class Commander{
     }
 
     updateOptions(opt){
-        Object.assign(this.options, opt)
+        Object.assign(this.options, opt);
     }
 }
 
 function newStructure(gen, opts){
         let vec = gen(opts);
+	if(!vec)return 0;
         if (vec.length === 0){
             return 0
+        }
+        if (vec.err){
+            return {err:vec.err}
         }
         if (opts.continue && opts.continue > 0 && opts.continue < 100){
             vec.splice(0, opts.continue / 100 * vec.length);
@@ -151,6 +160,9 @@ function RandomElement(items) {
     let r = Math.floor(Math.random() * items.length)
 	return [r,items[r]];
 }
+
+
+
 
 module.exports = Commander;
 

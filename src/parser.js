@@ -12,8 +12,27 @@ class Parser {
         ];
         this.options = [
             {
+                name:'hollow',
+                type:Boolean
+            },
+
+            {
+                name:'exp',
+                type:String
+            },
+            {
+                name:'target',
+                type: String,
+                alias:'t'
+            },
+            {
                 name: 'preview',
                 type: Boolean
+            },
+            {
+                name: 'list',
+                type: String,
+                multiple: true
             },
             {
                 name: 'command',
@@ -87,11 +106,14 @@ class Parser {
                 type:String
             },
             {
-                name:'shape',
+                name:'size',
                 alias:'s',
                 type:String
             }
         ].concat(options);
+        this.sections = [
+        ]
+        
         this.exec = exec;
     }
 
