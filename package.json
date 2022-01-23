@@ -27,17 +27,18 @@
     "name": "CAIMEO"
   },
   "bugs": {
-    "url": "https://github.com/CAIMEOX/libwebsocket/issues"
+    "url": "https://github.com/CAIMEOX/meowslib/issues"
   },
   "bundleDependencies": false,
   "dependencies": {
     "delta-e": "0.0.7",
     "ws": "6.0.0",
-    "command-line-args":"5.1.1"
+    "command-line-args":"5.1.1",
+    "jzz":"1.4.7"
   },
   "deprecated": false,
   "description": "Websocket Library ",
-  "homepage": "https://github.com/CAIMEOX/libwebsocket#readme",
+  "homepage": "https://github.com/CAIMEOX/meowslib#readme",
   "keywords": [
     "minecraft",
     "mcpe",

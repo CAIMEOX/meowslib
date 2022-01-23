@@ -12,6 +12,7 @@ const ProgressBar = require('./src/progressbar')
 const Palette = require('./res/palette');
 // const Lang = require('./res/lang');
 const Logger = require('./src/logger.js');
+const MidiPlayer = require('./src/midi.js');
 const Res = {
 	StringIds,ColorTable,Pako,Palette,BlockType
 }
@@ -24,5 +25,6 @@ module.exports = {
 	Parser,
 	Collector,
 	Builder,
-	Logger
+	Logger,
+	MidiPlayer
 }
